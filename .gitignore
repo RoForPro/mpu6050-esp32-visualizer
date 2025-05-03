@@ -1,0 +1,75 @@
+# ----------------------
+# ARCHIVOS PYTHON
+# ----------------------
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.pyd
+*.pyo
+.Python
+.env
+.venv/
+*.log
+*.bak
+*.swp
+*.DS_Store
+
+# Archivos de notebooks (si los usas)
+.ipynb_checkpoints
+
+# ----------------------
+# IDEs y editores
+# ----------------------
+.vscode/
+.idea/
+*.code-workspace
+
+# ----------------------
+# Arduino / ESP32
+# ----------------------
+*.elf
+*.bin
+*.hex
+*.ino.cpp
+*.d
+*.map
+*.bak
+*.sav
+*.log
+*.epf
+*.o
+*.pyproj
+.pio/
+.build/
+*.exe
+
+# Archivos de compilación creados por Arduino IDE
+*.cpp
+*.out
+*.a
+*.s
+*.lst
+
+# ----------------------
+# DATOS GENERADOS
+# ----------------------
+# *.csv
+*.json
+*.zip
+*.tar
+*.gz
+*.hdf5
+*.npy
+*.npz
+
+# ----------------------
+# CONFIGURACIÓN TEMPORAL
+# ----------------------
+*.tmp
+*.temp
+*~
+Thumbs.db
+ehthumbs.db
+desktop.ini
