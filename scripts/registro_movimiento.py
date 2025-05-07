@@ -13,7 +13,7 @@ import csv
 SERIAL_PORT = 'COM9'
 BAUD_RATE = 115200
 WINDOW_SIZE = 200  # Muestras a mostrar en la gráfica 2D
-CSV_FILENAME = "datos_ejercicio.csv"
+CSV_FILENAME = "datos_ejercicio_raw.csv"
 
 # Variable para detener de forma segura el hilo de lectura
 running = True
@@ -86,6 +86,16 @@ def getData():
         # Descartar las primeras 10 líneas (boot)
         for _ in range(10):
             ser.readline()
+
+        # Mensaje de información para el usuario
+        print("> IMPORTANTE el foco tienes que estar en la ventana de \"Visualización 2D y registro de repeticiones\" "
+              "si no, no funcionarán los comandos de teclado!!!")
+        print("Funciones:"
+              "\n\t- Pulse \"q\" para iniciar el registro de una repetición CORRECTA."
+              "\n\t\t- Pulse \"w\" para finalizar el registro de una repetición CORRECTA."
+              "\n\t- Pulse \"e\" para iniciar el registro de una repetición INCORRECTA."
+              "\n\t\t- Pulse \"r\" para finalizar el registro de una repetición INCORRECTA."
+              "\n\t- Pulse \"x\" para finalizar el registro y salir del programa de forma controlada.")
         while running:
             line = ser.readline().decode('utf-8', errors='ignore').strip()
             if line:
