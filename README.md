@@ -2,8 +2,100 @@
 
 Este proyecto está licenciado bajo CC BY-NC-SA 4.0. Más información: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+## Versión 2.1:
+
+
+
 
 ## Versión 2.0:
+
+## ✅ Objetivo de esta versión
+
+Validar un pipeline completo de clasificación binaria (**correcto** vs **incorrecto**) de repeticiones usando un único sensor IMU (MPU6050), orientado a ejercicios simples (prototipo tipo "S").
+
+---
+
+## 🧪 Dataset utilizado
+
+- Sensor colocado en: **muñeca derecha** realizando un curl de bíceps donde cada repetición dura 4" (correcto-completo, incorrecto-medio rango)
+- Nº de repeticiones: **20 correctas** + **20 incorrectas**
+- Etiquetado en tiempo real mediante teclado.
+- Datos registrados: `timestamp, yaw, pitch, roll, etiqueta`
+- Formato CSV: una fila por muestra, agrupadas por `rep_id`
+
+---
+
+## 🧠 Características extraídas por repetición
+
+Para cada repetición, el sistema agrupa todas las muestras y calcula las siguientes **23 características** (features) que resumen la ejecución:
+
+### 📊 Estadísticas básicas (por eje: yaw, pitch, roll)
+- `mean`: valor medio de la señal
+- `std`: desviación estándar (variabilidad)
+- `range`: diferencia entre el valor máximo y mínimo
+
+### ⏱️ Dinámicas (por eje)
+- `velocity_mean`: velocidad angular media (`Δángulo / Δtiempo`)
+- `velocity_max`: velocidad angular máxima (pico de velocidad)
+- `num_peaks`: número de picos detectados en la curva del eje (con `scipy.signal.find_peaks`)
+
+### ⌛ Duración total de la repetición
+- `duration`: duración total en segundos (`t_final − t_inicial`)
+
+### 🔗 Correlación entre ejes
+- `corr_yaw_pitch`
+- `corr_yaw_roll`
+- `corr_pitch_roll`
+
+### ⚡ Energía total
+- `energy_total`: suma de la energía (cuadrado RMS) de yaw, pitch y roll
+
+---
+
+## 🤖 Modelos comparados
+
+Se entrenan y comparan **3 clasificadores** con `scikit-learn`:
+
+1. **SVM (Support Vector Machine)** – lineal  
+   - Encuentra un plano óptimo que separa las clases.
+   - Robusto con pocas muestras y alto número de características.
+
+2. **Árbol de decisión**  
+   - Clasifica haciendo preguntas como “¿roll_range > 35?”
+   - Muy interpretable, útil para entender reglas.
+
+3. **KNN (k=5)**  
+   - Clasifica en función de los 5 vecinos más cercanos.
+   - Requiere más muestras para rendir bien.
+
+---
+
+## 📉 Métricas utilizadas
+
+Tras dividir el dataset en entrenamiento y test (70/30), se calcula:
+
+- **Accuracy**: % de aciertos globales.
+- **Precision**: de todas las veces que el modelo predijo una clase, ¿cuántas eran correctas?
+- **Recall**: de todas las veces que una clase era real, ¿cuántas fueron detectadas?
+- **F1-score**: promedio balanceado entre precisión y recall.
+
+### 📌 Matriz de confusión
+
+Cada modelo genera una matriz 2x2:
+
+|               | Predicho: Incorrecto | Predicho: Correcto |
+|---------------|----------------------|--------------------|
+| **Real: Incorrecto** | Verdaderos negativos     | Falsos negativos     |
+| **Real: Correcto**   | Falsos positivos         | Verdaderos positivos |
+
+---
+
+## 🧠 Interpretación de resultados
+
+- Un buen clasificador tendrá la **diagonal principal con valores altos** (aciertos) y ceros fuera de ella.
+- El análisis conjunto de **accuracy + matriz de confusión** + **F1-score por clase** permite entender si el modelo está sesgado (p.ej. solo acierta una clase) o equilibrado.
+
+---
 
 
 ## Versión 1.1: Pruebas repositorio

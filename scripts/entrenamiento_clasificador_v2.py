@@ -74,9 +74,11 @@ X = pd.DataFrame(features_list)
 print("Repeticiones extraídas (filas de X):", X.shape[0])
 y = pd.Series(labels).map({"correcto": 1, "incorrecto": 0})
 
-print("Características extraídas (primeras filas):")
+print("Características extraídas (primeras filas y últimas 5:")
 pd.set_option('display.max_columns', None)  # Se mostrarán todas las columnas
 print(X.head())
+if X.shape[0] > 5:
+    print(X.tail())
 
 # 4. División train/test y escalado
 X_train, X_test, y_train, y_test = train_test_split(
