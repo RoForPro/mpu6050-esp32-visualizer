@@ -78,6 +78,7 @@ Tras dividir el dataset en entrenamiento y test (70/30), se calcula:
 - **Precision**: de todas las veces que el modelo predijo una clase, ¿cuántas eran correctas?
 - **Recall**: de todas las veces que una clase era real, ¿cuántas fueron detectadas?
 - **F1-score**: promedio balanceado entre precisión y recall.
+- **support**: número real de muestras de cada clase en el conjunto de test.
 
 ### 📌 Matriz de confusión
 
