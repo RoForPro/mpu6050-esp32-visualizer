@@ -2,11 +2,10 @@ import serial
 import threading
 import time
 import numpy as np
-import csv
 from joblib import load
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtWidgets, QtCore
-import pyqtgraph.opengl as gl
+from skeleton_renderer import Skeleton3D
 from scipy.signal import find_peaks
 
 # ==========================
@@ -31,53 +30,6 @@ rep_lock = threading.Lock()
 current_active = False
 current_data = []
 rep_count = 0
-
-# ==========================
-# Funciones de visualización y extracción
-# ==========================
-def create_cube_mesh():
-    vertices = np.array([[-1, -1, -1],
-                         [ 1, -1, -1],
-                         [ 1,  1, -1],
-                         [-1,  1, -1],
-                         [-1, -1,  1],
-                         [ 1, -1,  1],
-                         [ 1,  1,  1],
-                         [-1,  1,  1]], dtype=np.float32)
-    faces = np.array([[0,1,2],[0,2,3],
-                      [4,5,6],[4,6,7],
-                      [0,1,5],[0,5,4],
-                      [2,3,7],[2,7,6],
-                      [0,3,7],[0,7,4],
-                      [1,2,6],[1,6,5]], dtype=np.int32)
-    return gl.MeshData(vertexes=vertices, faces=faces)
-
-def init_3d_view():
-    view = gl.GLViewWidget()
-    view.setWindowTitle('Visualización 3D IMU')
-    view.setCameraPosition(distance=40)
-    view.opts['azimuth'] = 45
-    view.opts['elevation'] = 30
-    view.show()
-    grid = gl.GLGridItem()
-    grid.setSize(20,20); grid.setSpacing(1,1)
-    view.addItem(grid)
-    md = create_cube_mesh()
-    cube = gl.GLMeshItem(meshdata=md, smooth=False,
-                        color=(1,0,0,0.8), shader='shaded', drawEdges=True)
-    view.addItem(cube)
-    return view, cube
-
-def update_3d():
-    with data_lock:
-        if yaw_data:
-            y, p, r = yaw_data[-1], pitch_data[-1], roll_data[-1]
-        else:
-            y = p = r = 0
-    sensor_cube.resetTransform()
-    sensor_cube.rotate(y, 0,0,1)
-    sensor_cube.rotate(p, 0,1,0)
-    sensor_cube.rotate(r, 1,0,0)
 
 def extract_feat_list(lst):
     # lst: [[ts,y,p,r],...]
@@ -149,8 +101,8 @@ c_p = plot.plot(pen='g', name="Pitch")
 c_r = plot.plot(pen='b', name="Roll")
 win2d.show()
 
-# Ventana 3D
-view_3d, sensor_cube = init_3d_view()
+# ––– VISTA 3D ESQUELETO –––
+skel3d = Skeleton3D()
 
 # Temporizadores
 def update_2d():
@@ -167,7 +119,10 @@ timer2.timeout.connect(update_2d)
 timer2.start(50)
 
 timer3 = QtCore.QTimer()
-timer3.timeout.connect(update_3d)
+timer3.timeout.connect(lambda: skel3d.update(
+    yaw_data[-1] if yaw_data else 0,
+    pitch_data[-1] if pitch_data else 0,
+    roll_data[-1] if roll_data else 0))
 timer3.start(50)
 
 # ==========================
@@ -206,7 +161,7 @@ def keyPressEvent(ev):
         app.quit()
 
 win2d.keyPressEvent = keyPressEvent
-view_3d.keyPressEvent = keyPressEvent
+skel3d.keyPressEvent = keyPressEvent
 
 # ==========================
 # ARRANQUE
