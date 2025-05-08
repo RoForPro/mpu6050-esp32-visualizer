@@ -40,7 +40,7 @@ class Skeleton3D:
                                       color=(0,0.8,0,1))
         self.view.addItem(self.bone)
         # articulaciones: dos esferas
-        self.joints = gl.GLScatterPlotItem(pos=pts, size=8,
+        self.joints = gl.GLScatterPlotItem(pos=pts, size=1,
                                            color=(1,0,0,1), pxMode=False)
         self.view.addItem(self.joints)
         self.view.show()
