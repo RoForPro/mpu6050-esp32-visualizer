@@ -1,11 +1,13 @@
-import serial
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtWidgets, QtCore
-import pyqtgraph.opengl as gl
+import csv
 import threading
 import time
+
 import numpy as np
-import csv
+import pyqtgraph as pg
+import serial
+from pyqtgraph.Qt import QtWidgets, QtCore
+
+from skeleton_renderer import Skeleton3D
 
 # ==========================
 # CONFIGURACIÓN
@@ -132,73 +134,6 @@ def getData():
 
 
 # ==========================
-# FUNCIÓN: Crear malla de cubo (reemplaza a gl.MeshData.cube())
-# ==========================
-def create_cube_mesh():
-    # Definir los 8 vértices de un cubo centrado en el origen, tamaño 2
-    vertices = np.array([[-1, -1, -1],
-                         [1, -1, -1],
-                         [1, 1, -1],
-                         [-1, 1, -1],
-                         [-1, -1, 1],
-                         [1, -1, 1],
-                         [1, 1, 1],
-                         [-1, 1, 1]], dtype=np.float32)
-    # Definir las caras (triángulos)
-    faces = np.array([[0, 1, 2], [0, 2, 3],  # cara inferior
-                      [4, 5, 6], [4, 6, 7],  # cara superior
-                      [0, 1, 5], [0, 5, 4],  # cara frontal
-                      [2, 3, 7], [2, 7, 6],  # cara trasera
-                      [0, 3, 7], [0, 7, 4],  # cara lateral izquierda
-                      [1, 2, 6], [1, 6, 5]], dtype=np.int32)
-    return gl.MeshData(vertexes=vertices, faces=faces)
-
-
-# ==========================
-# FUNCIÓN: Inicializar y actualizar la vista 3D
-# ==========================
-def init_3d_view():
-    view = gl.GLViewWidget()
-    view.setWindowTitle('Visualización 3D IMU')
-    view.setCameraPosition(distance=40)
-    view.opts['azimuth'] = 45
-    view.opts['elevation'] = 30
-    view.show()
-
-    # Agregar una cuadrícula para referencia
-    grid = gl.GLGridItem()
-    grid.setSize(20, 20)
-    grid.setSpacing(1, 1)
-    view.addItem(grid)
-
-    # Crear un cubo para representar el sensor usando la función auxiliar
-    md = create_cube_mesh()  # Genera la malla de un cubo
-
-    sensor_cube = gl.GLMeshItem(meshdata=md, smooth=False, color=(1, 0, 0, 0.8),
-                                shader='shaded', drawEdges=True)
-    sensor_cube.translate(0, 0, 0)
-    view.addItem(sensor_cube)
-
-    return view, sensor_cube
-
-
-def update_3d():
-    # Obtener los valores más recientes para la 3D
-    with data_lock:
-        if yaw_data:
-            latest_yaw = yaw_data[-1]
-            latest_pitch = pitch_data[-1]
-            latest_roll = roll_data[-1]
-        else:
-            latest_yaw = latest_pitch = latest_roll = 0
-    # Reiniciar la transformación y aplicar rotaciones (orden: yaw, pitch, roll)
-    sensor_cube.resetTransform()
-    sensor_cube.rotate(latest_yaw, 0, 0, 1)  # Yaw: rotación en torno al eje Z
-    sensor_cube.rotate(latest_pitch, 0, 1, 0)  # Pitch: eje Y
-    sensor_cube.rotate(latest_roll, 1, 0, 0)  # Roll: eje X
-
-
-# ==========================
 # CONFIGURACIÓN DE LA GRÁFICA 2D
 # ==========================
 app = QtWidgets.QApplication([])
@@ -235,12 +170,13 @@ timer_2d = QtCore.QTimer()
 timer_2d.timeout.connect(update_2d)
 timer_2d.start(50)
 
-# ==========================
-# INICIALIZAR VENTANA 3D Y TEMPORIZADOR
-# ==========================
-view_3d, sensor_cube = init_3d_view()
+# ––– VISTA 3D ESQUELETO –––
+skel3d = Skeleton3D()
 timer_3d = QtCore.QTimer()
-timer_3d.timeout.connect(update_3d)
+timer_3d.timeout.connect(lambda: skel3d.update(
+    yaw_data[-1] if yaw_data else 0,
+    pitch_data[-1] if pitch_data else 0,
+    roll_data[-1] if roll_data else 0))
 timer_3d.start(50)
 
 
@@ -291,10 +227,9 @@ def keyPressEvent(event):
         exit_program()
 
 
-
 # Conectar el manejo de teclas a la ventana principal y a la 3D
 win.keyPressEvent = keyPressEvent
-view_3d.keyPressEvent = keyPressEvent  # También para la ventana 3D
+skel3d.keyPressEvent = keyPressEvent  # También para la ventana 3D
 
 # ==========================
 # INICIAR HILO DE LECTURA DE DATOS
