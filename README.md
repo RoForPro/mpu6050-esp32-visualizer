@@ -4,21 +4,21 @@ Este proyecto está licenciado bajo CC BY-NC-SA 4.0. Más información: https://
 
 ## Versión 2.1:
 
-
+Añadir elemento gráficos.
 
 
 ## Versión 2.0:
 
 ## ✅ Objetivo de esta versión
 
-Validar un pipeline completo de clasificación binaria (**correcto** vs **incorrecto**) de repeticiones usando un único sensor IMU (MPU6050), orientado a ejercicios simples (prototipo tipo "S").
+Validar un pipeline completo de clasificación binaria (**correcto** vs. **incorrecto**) de repeticiones usando un único sensor IMU (MPU6050), orientado a ejercicios simples (prototipo tipo "S").
 
 ---
 
 ## 🧪 Dataset utilizado
 
 - Sensor colocado en: **muñeca derecha** realizando un curl de bíceps donde cada repetición dura 4" (correcto-completo, incorrecto-medio rango)
-- Nº de repeticiones: **20 correctas** + **20 incorrectas**
+- N.º de repeticiones: **20 correctas** + **20 incorrectas**.
 - Etiquetado en tiempo real mediante teclado.
 - Datos registrados: `timestamp, yaw, pitch, roll, etiqueta`
 - Formato CSV: una fila por muestra, agrupadas por `rep_id`
@@ -84,17 +84,17 @@ Tras dividir el dataset en entrenamiento y test (70/30), se calcula:
 
 Cada modelo genera una matriz 2x2:
 
-|               | Predicho: Incorrecto | Predicho: Correcto |
-|---------------|----------------------|--------------------|
-| **Real: Incorrecto** | Verdaderos negativos     | Falsos negativos     |
-| **Real: Correcto**   | Falsos positivos         | Verdaderos positivos |
+|                      | Predicho: Incorrecto | Predicho: Correcto   |
+|----------------------|----------------------|----------------------|
+| **Real: Incorrecto** | Verdaderos negativos | Falsos negativos     |
+| **Real: Correcto**   | Falsos positivos     | Verdaderos positivos |
 
 ---
 
 ## 🧠 Interpretación de resultados
 
 - Un buen clasificador tendrá la **diagonal principal con valores altos** (aciertos) y ceros fuera de ella.
-- El análisis conjunto de **accuracy + matriz de confusión** + **F1-score por clase** permite entender si el modelo está sesgado (p.ej. solo acierta una clase) o equilibrado.
+- El análisis conjunto de **accuracy + matriz de confusión** + **F1-score por clase** permite entender si el modelo está sesgado (p. ej. solo acierta una clase) o equilibrado.
 
 ---
 
@@ -195,15 +195,15 @@ Se puede encontrar en ./sketch/MPU6050_DMP_YPR_logger/MPU6050_DMP_YPR_logger.ino
 
 ### 🧠 Pines del MPU6050
 
-| Pin MPU6050 | Función                       | Conexión en ESP32                                                      |
-|-------------|-------------------------------|------------------------------------------------------------------------|
-| **VCC**     | Alimentación                  | 3.3V del ESP32                                                         |
-| **GND**     | Tierra                        | GND del ESP32                                                          |
-| **SCL**     | Clock de I2C                  | GPIO 22 (SCL del ESP32)                                                |
-| **SDA**     | Datos de I2C                  | GPIO 21 (SDA del ESP32)                                                |
-| **INT**     | Interrupción por interrupciones de datos  | GPIO 25 (INT del ESP32)                                                 |
-| **XDA**     | Datos I2C para magnetómetro (no usado)     | No conectado                                                           |
-| **XCL**     | Clock I2C para magnetómetro (no usado)     | No conectado                                                           |
+| Pin MPU6050       | Función                                    | Conexión en ESP32                                                      |
+|-------------------|--------------------------------------------|------------------------------------------------------------------------|
+| **VCC**           | Alimentación                               | 3.3V del ESP32                                                         |
+| **GND**           | Tierra                                     | GND del ESP32                                                          |
+| **SCL**           | Clock de I2C                               | GPIO 22 (SCL del ESP32)                                                |
+| **SDA**           | Datos de I2C                               | GPIO 21 (SDA del ESP32)                                                |
+| **INT**           | Interrupción por interrupciones de datos   | GPIO 25 (INT del ESP32)                                                |
+| **XDA**           | Datos I2C para magnetómetro (no usado)     | No conectado                                                           |
+| **XCL**           | Clock I2C para magnetómetro (no usado)     | No conectado                                                           |
 | **AD0** o **ADO** | Dirección I2C: LOW = `0x68`, HIGH = `0x69` | GND (recomendado usar `0x68` con lo que puede permanecer no conectado) |
 
-> ⚠️ Si usas más de un MPU6050 en el mismo bus I2C, puedes conectar AD0 a 3.3V en uno de ellos para usar `0x69` como dirección secundaria.
+> ⚠️ Si usas más de un MPU6050 en el mismo bus I2C, puedes conectar AD0 a 3.3 V en uno de ellos para usar `0x69` como dirección secundaria.
