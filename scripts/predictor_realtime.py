@@ -149,14 +149,14 @@ win2d.show()
 # QLabel flotante para predicción
 label_pred = QtWidgets.QLabel("", parent=win2d)
 label_pred.setStyleSheet("""
-    background-color: rgba(50,50,50,200);
+    background-color: rgba(255, 255, 255, 10);
     color: white;
-    font-size: 16pt;
+    font-size: 12pt;
     border-radius: 8px;
     padding: 5px;
 """)
 label_pred.setAlignment(QtCore.Qt.AlignCenter)
-label_pred.setFixedSize(200, 60)
+label_pred.setFixedSize(200, 60)  # Tamaño de la ventana de resultado de predicción
 label_pred.move(10, 10)
 label_pred.show()
 
@@ -214,13 +214,13 @@ def finalize_rep():
     label_pred.setStyleSheet(f"""
         background-color: {color};
         color: white;
-        font-size: 16pt;
+        font-size: 12pt;
         border-radius: 8px;
         padding: 5px;
-    """)
-    label_pred.setText(f"{label_text}\nProb: {prob:.2f}")
+    """)  # ATENCIÓN! se sobreescribe totalmente el setStyleSheet que se inicializa
+    label_pred.setText(f"{label_text}\nProb: {prob*100:.2f}%")
 
-    print(f"\n▶ Repetición {rep_count} → {label_text} (p={prob:.2f})\n")
+    print(f"\n▶ Repetición {rep_count} → {label_text} (p={prob*100:.2f}%)\n")
 
 
 def keyPressEvent(ev):
