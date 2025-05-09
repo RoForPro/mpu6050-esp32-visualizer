@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Cargar el CSV con los datos de repetición
-csv_filename = "datos_ejercicio.csv"
+csv_filename = "../data/datos_ejercicio.csv"
 df = pd.read_csv(csv_filename)
 
 # Verifica que el CSV tiene las columnas esperadas
