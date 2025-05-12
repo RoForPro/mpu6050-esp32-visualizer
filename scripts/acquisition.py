@@ -4,14 +4,14 @@ import serial, threading, time, csv
 from typing import Callable
 
 
-class SerialReader:
+class CaptureWidget:
     """
     Lee serie en hilo y notifica callbacks con cada línea decodificada.
-    También segmenta por tag (Correcto / Incorrecto) con callbacks.
+    También segmenta por tag con callbacks.
     """
 
     def __init__(self, port: str, baud: int, raw_csv: str):
-        self.port = port;
+        self.port = port
         self.baud = baud
         self.running = False
         self._thread = None
