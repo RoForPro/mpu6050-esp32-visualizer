@@ -1,18 +1,10 @@
 # scripts/ui.py
 
-import pandas as pd
-from PyQt5 import QtWidgets, QtCore
-import pyqtgraph as pg
-
 import config
-from .skeleton_renderer import Skeleton3D
-from .acquisition import SerialReader
-from .predictor import Predictor
-from .training import train_model  # si quieres dejar el pipeline aquí
+from core.acquisition import CaptureWidget
 
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QDockWidget, QWidget, QVBoxLayout,
-    QHBoxLayout, QPushButton, QLabel, QLineEdit, QFileDialog, QMessageBox
+    QMainWindow, QDockWidget
 )
 from PyQt5.QtCore import Qt
 

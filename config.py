@@ -8,6 +8,6 @@ CSV_RAW_FILENAME = "datos_ejercicio_raw.csv"
 CSV_FILENAME = "datos_ejercicio.csv"
 
 # Otros parámetros que acabarán siendo configurables
-RECORD_LABELS = ["correcto", "error1", "error2", "error3", "error4", "error5"]
+RECORD_LABELS = ["correcto", "incorrecto"]# "error1", "error2", "error3", "error4", "error5"]
 DATA_FOLDER   = "./data"
 MODEL_PATH    = "./models/modelo_prototipo.joblib"
