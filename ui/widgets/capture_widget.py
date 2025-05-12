@@ -104,7 +104,7 @@ class CaptureWidget(QWidget):
         - reading = {'sensor_id','timestamp','yaw','pitch','roll','rep_id'?}
         """
         sid = reading.get('sensor_id')
-        # Si tenemos un widget para ese IMU, actualízalo
+        # Solo el Plot2DWidget con ese sensor_id recibirá update_data
         if sid in self.plot2d_widgets:
             self.plot2d_widgets[sid].update_data(reading)
 
