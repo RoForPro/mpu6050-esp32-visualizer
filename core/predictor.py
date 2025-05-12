@@ -2,7 +2,7 @@
 
 import pandas as pd
 from joblib import load
-from scripts.features import extract_from_list
+from core.features import extract_from_list
 
 
 class Predictor:
