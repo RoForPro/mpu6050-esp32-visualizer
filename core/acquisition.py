@@ -109,38 +109,43 @@ class CaptureController(QObject):
     segment_started = pyqtSignal(str)
     segment_stopped = pyqtSignal()
 
-    def __init__(
-        self,
-        sensor_configs: List[Dict[str, Any]],
-        raw_filepath: str,
-        labeled_filepath: str
-    ):
+    def __init__(self, sensor_configs, raw_filepath, labeled_filepath):
         super().__init__()
-        self.recorder = DataRecorder(
-            sensor_manager=SensorManager(sensor_configs),
-            raw_filepath=raw_filepath,
-            labeled_filepath=labeled_filepath
-        )
+        # Guardamos los parámetros para recrear el recorder
+        self._sensor_configs = sensor_configs
+        self._raw_filepath = raw_filepath
+        self._label_filepath = labeled_filepath
+        self.recorder = None
         self._stop_event = threading.Event()
-        self._thread: threading.Thread = None
+        self._thread = None
 
     def start_recording(self):
         """Arranca el hilo que lee continuamente de las IMUs."""
+        # Si ya hay un hilo vivo, no hacemos nada
         if self._thread and self._thread.is_alive():
             return
-        self.recording_started.emit()
+        # 1) Re-creamos un DataRecorder con puertos y CSVs nuevos
+        self.recorder = DataRecorder(
+            sensor_manager = SensorManager(self._sensor_configs),
+            raw_filepath = self._raw_filepath,
+            labeled_filepath = self._label_filepath)
+        # 2) Arrancamos el hilo de captura
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._record_loop, daemon=True)
         self._thread.start()
+        self.recording_started.emit()
 
     def stop_recording(self):
         """Pide parada al hilo, espera a que termine y cierra sensores y ficheros."""
-        self.recording_stopped.emit()
         self._stop_event.set()
         if self._thread:
             self._thread.join()
-        self.recorder.sm.close_all()
-        self.recorder.close()
+        # Cerramos sensores y ficheros del recorder actual
+        if self.recorder:
+            self.recorder.sm.close_all()
+            self.recorder.close()
+            self.recorder = None
+            self.recording_stopped.emit()
 
     def start_segment(self, label: str):
         """Señala al recorder que empiece a acumular datos con esta etiqueta."""
