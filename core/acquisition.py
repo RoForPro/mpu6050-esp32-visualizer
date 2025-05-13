@@ -17,14 +17,15 @@ class DataRecorder:
         self,
         sensor_manager: SensorManager,
         raw_filepath: str,
-        labeled_filepath: str
+        labeled_filepath: str,
+        starting_rep_id: int = 0,
     ):
         self.sm = sensor_manager
         self.raw_filepath = raw_filepath
         self.labeled_filepath = labeled_filepath
         # Contador de repeticiones
-        self._next_rep_id = 1
-        self.current_rep_id = None  # TODO Se podría establecer desde la interfaz
+        self._next_rep_id = starting_rep_id + 1
+        self.current_rep_id = starting_rep_id  # TODO Se podría establecer desde la interfaz
 
         # Aseguramos carpeta destino
         os.makedirs(os.path.dirname(raw_filepath) or ".", exist_ok=True)
@@ -118,6 +119,8 @@ class CaptureController(QObject):
         self.recorder = None
         self._stop_event = threading.Event()
         self._thread = None
+        # Contador de id de repeticiones global
+        self.rep_id = 0
 
     def start_recording(self):
         """Arranca el hilo que lee continuamente de las IMUs."""
@@ -128,7 +131,8 @@ class CaptureController(QObject):
         self.recorder = DataRecorder(
             sensor_manager = SensorManager(self._sensor_configs),
             raw_filepath = self._raw_filepath,
-            labeled_filepath = self._label_filepath)
+            labeled_filepath = self._label_filepath,
+            starting_rep_id = self.rep_id)
         # 2) Arrancamos el hilo de captura
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._record_loop, daemon=True)
@@ -142,6 +146,7 @@ class CaptureController(QObject):
             self._thread.join()
         # Cerramos sensores y ficheros del recorder actual
         if self.recorder:
+            self.rep_id = self.recorder.current_rep_id # Almacena la repetición en la que queda
             self.recorder.sm.close_all()
             self.recorder.close()
             self.recorder = None

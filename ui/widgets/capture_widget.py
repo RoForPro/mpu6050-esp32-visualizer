@@ -109,7 +109,7 @@ class CaptureWidget(QWidget):
     def _on_data_ready(self, reading: dict):
         """
         Lectura recibida:
-        - reading = {'sensor_id','timestamp','yaw','pitch','roll','rep_id'?}
+        - reading = {'sensor_id','rep_id', 'timestamp','yaw','pitch','roll',}
         """
         sid = reading.get('sensor_id')
         # Solo el Plot2DWidget con ese sensor_id recibirá update_data
