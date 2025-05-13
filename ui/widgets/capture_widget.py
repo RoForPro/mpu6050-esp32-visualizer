@@ -2,7 +2,7 @@
 
 import os
 from PyQt5.QtWidgets import (
-    QWidget, QPushButton, QComboBox, QLabel,
+    QWidget, QPushButton, QComboBox, QLabel, QCheckBox,
     QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtCore import Qt
@@ -32,6 +32,8 @@ class CaptureWidget(QWidget):
 
         # — Controles principales—
         # Inicialización de botones con estados iniciales
+        self.record_raw_data = QCheckBox("Registra toda la captura") # Guarda en .csv raw data
+        self.record_raw_data.setChecked(False)
         self.btn_start = QPushButton("Iniciar Grabación")
         self.btn_stop = QPushButton("Detener Grabación")
         self.btn_stop.setEnabled(False)  # Inicialmente deshabilitado
@@ -68,6 +70,7 @@ class CaptureWidget(QWidget):
         ctrl_layout = QHBoxLayout()
         ctrl_layout.addWidget(self.btn_start)
         ctrl_layout.addWidget(self.btn_stop)
+        ctrl_layout.addWidget(self.record_raw_data)
         ctrl_layout.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
         ctrl_layout.addWidget(QLabel("Etiqueta:"))
         ctrl_layout.addWidget(self.label_combo)
@@ -101,6 +104,13 @@ class CaptureWidget(QWidget):
         self.ctrl.recording_stopped.connect(self._on_recording_stopped)
         self.ctrl.segment_started.connect(self._on_segment_started)
         self.ctrl.segment_stopped.connect(self._on_segment_stopped)
+        self.record_raw_data.stateChanged.connect(self._on_raw_data_changed)
+        self.ctrl.set_record_raw_data(self.record_raw_data.isChecked())
+
+    def _on_raw_data_changed(self, state: bool):
+        """Maneja el cambio en el checkbox de datos raw"""
+        # self.record_raw_data = state
+        self.ctrl.set_record_raw_data(self.record_raw_data.isChecked())
 
     def _on_start_segment(self):
         label = self.label_combo.currentText()
@@ -168,3 +178,7 @@ class CaptureWidget(QWidget):
         self.btn_stop_segment.setEnabled(recording_state.get('btn_stop_segment', False))
         self.status_label.setText(f"Estado: {recording_state.get('status_text', 'Detenido')}")
         self.status_label.setStyleSheet(recording_state.get('status_style', "color: black;"))
+def _on_raw_data_changed(self, state: bool):
+    """Maneja el cambio en el checkbox de datos raw"""
+    self.record_raw_data = state
+    self.ctrl.set_record_raw_data(state)

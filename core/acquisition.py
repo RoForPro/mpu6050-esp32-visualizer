@@ -121,6 +121,16 @@ class CaptureController(QObject):
         self._thread = None
         # Contador de id de repeticiones global
         self.rep_id = 0
+        # Guarda en .csv el raw data o no
+        self._record_raw_data = True  # valor por defecto
+
+    def set_record_raw_data(self, value: bool):
+        """Establece si se debe grabar datos raw"""
+        self._record_raw_data = value
+        
+    def get_record_raw_data(self) -> bool:
+        """Obtiene el estado actual de grabación raw"""
+        return self._record_raw_data
 
     def start_recording(self):
         """Arranca el hilo que lee continuamente de las IMUs."""
@@ -168,7 +178,8 @@ class CaptureController(QObject):
             readings = self.recorder.sm.read_all()
             for reading in readings:
                 # 1) graba raw
-                self.recorder.write_raw(reading)
+                if self._record_raw_data:
+                    self.recorder.write_raw(reading)
                 # 2) si hay segmento abierto, acumula
                 if self.recorder.segment_active:
                     self.recorder.current_buffer.append(reading)
