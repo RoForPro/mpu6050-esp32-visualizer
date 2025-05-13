@@ -2,6 +2,10 @@
 
 Este proyecto está licenciado bajo CC BY-NC-SA 4.0. Más información: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+TODO
+- conexión wifi
+
+
 ## Versión 4.0:
 Cambio sustancial. Implementación propia con ayuda de ChatGPT frente a la generación total por parte de la IA de versiones anteriores.
 # 📐 Arquitectura del Sistema Biomecánico (v4.0)
