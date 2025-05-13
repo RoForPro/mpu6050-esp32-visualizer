@@ -10,6 +10,8 @@ from PyQt5.QtCore import Qt
 import config
 from core.acquisition import CaptureController
 from visualization.plot2d import Plot2DWidget
+
+
 # from visualization.heatmap import HeatmapWidget
 # from visualization.renderer3d import Renderer3DWidget
 
@@ -18,7 +20,7 @@ class CaptureWidget(QWidget):
         super().__init__(parent)
 
         # Rutas de fichero
-        raw_path   = os.path.join(config.DATA_FOLDER, config.CSV_RAW_FILENAME)
+        raw_path = os.path.join(config.DATA_FOLDER, config.CSV_RAW_FILENAME)
         label_path = os.path.join(config.DATA_FOLDER, config.CSV_FILENAME)
 
         # Controlador de captura
@@ -38,6 +40,7 @@ class CaptureWidget(QWidget):
         self.label_combo.addItems(config.RECORD_LABELS)
 
         self.btn_start_segment = QPushButton("Iniciar Repetición")
+        self.btn_start_segment.setEnabled(False)
         self.btn_stop_segment = QPushButton("Detener Repetición")
         self.btn_stop_segment.setEnabled(False)  # Inicialmente deshabilitado
 
@@ -102,9 +105,6 @@ class CaptureWidget(QWidget):
     def _on_start_segment(self):
         label = self.label_combo.currentText()
         self.ctrl.start_segment(label)
-        # Actualizar estado de botones
-        self.btn_start_segment.setEnabled(False)
-        self.btn_stop_segment.setEnabled(True)
 
     def _on_data_ready(self, reading: dict):
         """
@@ -122,29 +122,49 @@ class CaptureWidget(QWidget):
         # self.renderer3d.update_data(reading)
 
     def _on_segment_started(self, label: str):
-        self.status_label.setText(f"Estado: Grabando ('{label}')")
-        self.status_label.setStyleSheet("color: green;")
-        # Actualizar estado de botones
-        self.btn_start.setEnabled(False)
-        self.btn_stop.setEnabled(True)
+        self.update_btn_state({
+            'btn_start': False,
+            'btn_stop': False,
+            'btn_start_segment': False,
+            'btn_stop_segment': True,
+            'status_text': f"Grabando repetición ('{label}')",
+            'status_style': "color: green;",
+        })
 
     def _on_segment_stopped(self):
-        self.status_label.setText("Estado: Detenido")
-        self.status_label.setStyleSheet("color: black;")
-        # Actualizar estado de botones
-        self.btn_start_segment.setEnabled(True)
-        self.btn_stop_segment.setEnabled(False)
+        self.update_btn_state({
+            'btn_start': False,
+            'btn_stop': True,
+            'btn_start_segment': True,
+            'btn_stop_segment': False,
+            'status_text': 'Detenido',
+            'status_style': "color: black;",
+        })
 
     def _on_recording_started(self):
-        self.btn_start.setEnabled(False)
-        self.btn_stop.setEnabled(True)
-        
-    def _on_recording_stopped(self):
-        self.btn_start.setEnabled(True)
-        self.btn_stop.setEnabled(False)
+        self.update_btn_state({
+            'btn_start': False,
+            'btn_stop': True,
+            'btn_start_segment': True,
+            'btn_stop_segment': False,
+            'status_text': 'Grabando...',
+            'status_style': "color: blue;",
+        })
 
-    # def on_error(self):
-    #     self.btn_start.setEnabled(True)
-    #     self.btn_stop.setEnabled(False)
-    #     self.btn_start_segment.setEnabled(False)
-    #     self.btn_stop_segment.setEnabled(False)
+    def _on_recording_stopped(self):
+        self.update_btn_state({
+            'btn_start': True,
+            'btn_stop': False,
+            'btn_start_segment': False,
+            'btn_stop_segment': False,
+            'status_text': 'Detenido',
+            'status_style': "color: black;",
+        })
+
+    def update_btn_state(self, recording_state: dict):
+        self.btn_start.setEnabled(recording_state.get('btn_start', False))
+        self.btn_stop.setEnabled(recording_state.get('btn_stop', False))
+        self.btn_start_segment.setEnabled(recording_state.get('btn_start_segment', False))
+        self.btn_stop_segment.setEnabled(recording_state.get('btn_stop_segment', False))
+        self.status_label.setText(f"Estado: {recording_state.get('status_text', 'Detenido')}")
+        self.status_label.setStyleSheet(recording_state.get('status_style', "color: black;"))
