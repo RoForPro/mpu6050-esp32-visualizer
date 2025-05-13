@@ -9,7 +9,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from joblib import dump
-from scripts.features import extract_from_list
+from core.features import extract_from_list
 
 
 def train_model(csv_path: str, model_out: str):

@@ -1,1 +1,1 @@
-IA entrenada
+Modelos de Machine learning entrenados

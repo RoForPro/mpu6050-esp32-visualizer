@@ -2,6 +2,150 @@
 
 Este proyecto está licenciado bajo CC BY-NC-SA 4.0. Más información: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+TODO
+- conexión wifi
+
+
+## Versión 4.0:
+Cambio sustancial. Implementación propia con ayuda de ChatGPT frente a la generación total por parte de la IA de versiones anteriores.
+# 📐 Arquitectura del Sistema Biomecánico (v4.0)
+
+Este documento describe la estructura modular del sistema biomecánico, preparada para escalar desde 1 hasta 6 IMUs, múltiples modos de operación, e interfaces visuales avanzadas (2D, 3D, heatmap). La arquitectura está dividida en capas bien diferenciadas, facilitando el mantenimiento, testeo e incorporación de nuevas funcionalidades.
+
+---
+
+## 🗂 Estructura de Carpetas
+## 🗂 Estructura del Proyecto
+
+```plaintext
+project_root/
+│
+├── core/                    # Lógica de negocio (sin Qt ni matplotlib)
+│   ├── imu/                 # Gestión de sensores
+│   │   ├── imu.py           # Clase IMUSensor (un sensor)
+│   │   └── manager.py       # SensorManager (N sensores)
+│   │
+│   ├── acquisition.py       # DataRecorder + CaptureController (señales Qt)
+│   ├── features.py          # Extracción de características desde raw data
+│   ├── training.py          # TrainingManager (entrenar, validar, guardar)
+│   └── predictor.py         # PredictorManager (cargar modelo, predecir)
+│
+├── visualization/           # Representación visual (sin Qt)
+│   ├── plot2d.py            # Gráficas de series temporales
+│   ├── heatmap.py           # Generación de mapas de calor
+│   └── renderer3d.py        # Esqueleto 3D animado
+│
+├── ui/                      # Interfaz gráfica (Qt)
+│   ├── widgets/             # Widgets individuales por modo
+│   │   ├── capture_widget.py
+│   │   ├── training_widget.py
+│   │   ├── offline_widget.py
+│   │   └── live_widget.py
+│   │
+│   └── main.py              # Ventana principal y gestor de modos
+│
+├── main.py                  # Ejecución principal
+│
+└── tests/                   # Pruebas automáticas
+    ├── imu_test.py
+    ├── acquisition_test.py
+    ├── features_test.py
+    ├── training_test.py
+    └── predictor_test.py
+```
+
+---
+
+## 🧠 Capas y Responsabilidades
+
+| Paquete       | Responsabilidad principal                                                   |
+|---------------|------------------------------------------------------------------------------|
+| `core/imu`    | Manejo individual y grupal de sensores IMU.                                 |
+| `core/`       | Lógica de grabación, segmentación, entrenamiento y predicción.              |
+| `visualization/` | Generación de gráficas, mapas de calor y animación 3D.                    |
+| `ui/`         | Interfaz Qt: botones, gráficos, controles e interacción visual.             |
+| `tests/`      | Tests unitarios para asegurar que todo funcione sin hardware ni GUI.        |
+
+---
+
+## 🔄 Flujo de Datos: Modo “Captura y Segmentación”
+
+1. El usuario pulsa **Start** en `CaptureWidget`.
+2. El widget lanza el `CaptureController`, que a su vez inicia un `DataRecorder` con un `SensorManager`.
+3. El `SensorManager` gestiona múltiples `IMUSensor` y retorna un diccionario con las lecturas por sensor:
+
+    ```python
+    {
+      "imu1": {"t":…, "yaw":…, "pitch":…, "roll":…},
+      ...
+      "imu6": {...}
+    }
+    ```
+
+4. El `DataRecorder`:
+   - 📝 Escribe los datos en un archivo CSV.
+   - 🕐 Detecta el final de cada repetición.
+   - 📡 Emite señales Qt (`data_ready`) que permiten:
+     - 📈 Actualizar gráficas 2D.
+     - 🌡️ Pintar un heatmap.
+     - 🦴 Animar la vista 3D.
+
+> **Nota:** Los widgets Qt **no contienen lógica de negocio**. Solo conectan botones con controladores y reciben datos procesados desde `core/`.
+
+---
+
+## 🧱 Estructura de Clases Clave
+
+### `IMUSensor`
+- Representa un único sensor IMU.
+- Se conecta por puerto, lee y entrega orientación (`yaw`, `pitch`, `roll`).
+
+### `SensorManager`
+- Maneja múltiples objetos `IMUSensor`.
+- Devuelve un snapshot sincronizado de todos los sensores activos.
+
+### `DataRecorder`
+- Controla la grabación continua de datos desde los sensores.
+- Segmenta repeticiones.
+- Escribe los datos y sus etiquetas en un archivo CSV.
+
+### `CaptureController`
+- Clase basada en `QObject` de Qt.
+- Emite señales (`data_ready`) para actualizar widgets gráficos.
+
+### `TrainingManager` / `PredictorManager`
+- Entrenan modelos de clasificación a partir del CSV etiquetado.
+- Predicen la clase/técnica de ejecución de nuevas repeticiones.
+
+---
+
+## ⚙️ Escalabilidad: hasta 6 IMUs
+
+- El `SensorManager` puede manejar un número arbitrario de sensores configurados desde un archivo `.json` o `.ini`.
+- Cada IMU tiene su propia serie de datos en el CSV y en la visualización 2D.
+- La vista 3D (`renderer3d.py`) utiliza las orientaciones de los 6 sensores para componer un esqueleto animado.
+- **No es necesario modificar la interfaz gráfica** para añadir más sensores, basta con actualizar la configuración y la lógica del `renderer3d`.
+
+---
+
+## ✅ Ventajas de esta Arquitectura
+
+- 🔒 **Separación clara** entre lógica y presentación (GUI).
+- 🔁 **Reutilización** de módulos en distintos modos o interfaces (CLI, GUI, batch).
+- 🧪 **Testabilidad total**: la lógica se puede testear sin Qt ni hardware.
+- 🚀 **Escalabilidad real**: nuevos sensores, ejercicios o visualizaciones se integran sin reestructurar el sistema.
+- 🧩 **Modularidad**: los componentes se pueden intercambiar fácilmente (p. ej. cambiar SVM por CNN).
+
+   
+
+---
+
+---
+
+## Versión 3.0:
+
+Cambio de interfaz gráfica do Dock Widget. Errores en funionalidades
+
 ## Versión 2.1:
 
 Añadir elemento gráficos.
