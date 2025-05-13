@@ -29,14 +29,17 @@ class CaptureWidget(QWidget):
         )
 
         # — Controles principales—
+        # Inicialización de botones con estados iniciales
         self.btn_start = QPushButton("Iniciar Grabación")
-        self.btn_stop  = QPushButton("Detener Grabación")
+        self.btn_stop = QPushButton("Detener Grabación")
+        self.btn_stop.setEnabled(False)  # Inicialmente deshabilitado
 
         self.label_combo = QComboBox()
         self.label_combo.addItems(config.RECORD_LABELS)
 
         self.btn_start_segment = QPushButton("Iniciar Repetición")
-        self.btn_stop_segment  = QPushButton("Detener Repetición")
+        self.btn_stop_segment = QPushButton("Detener Repetición")
+        self.btn_stop_segment.setEnabled(False)  # Inicialmente deshabilitado
 
         self.status_label = QLabel("Estado: Detenido")
         self.status_label.setAlignment(Qt.AlignCenter)
@@ -89,14 +92,19 @@ class CaptureWidget(QWidget):
         self.btn_start_segment.clicked.connect(self._on_start_segment)
         self.btn_stop_segment.clicked.connect(self.ctrl.stop_segment)
 
-        # — Conexiones Controller → UI—
+        # Actualiza los estados de los botones cuando cambia el estado
         self.ctrl.data_ready.connect(self._on_data_ready)
+        self.ctrl.recording_started.connect(self._on_recording_started)
+        self.ctrl.recording_stopped.connect(self._on_recording_stopped)
         self.ctrl.segment_started.connect(self._on_segment_started)
         self.ctrl.segment_stopped.connect(self._on_segment_stopped)
 
     def _on_start_segment(self):
         label = self.label_combo.currentText()
         self.ctrl.start_segment(label)
+        # Actualizar estado de botones
+        self.btn_start_segment.setEnabled(False)
+        self.btn_stop_segment.setEnabled(True)
 
     def _on_data_ready(self, reading: dict):
         """
@@ -114,9 +122,29 @@ class CaptureWidget(QWidget):
         # self.renderer3d.update_data(reading)
 
     def _on_segment_started(self, label: str):
-        self.status_label.setText(f"Estado: Grabando (‘{label}’)")
+        self.status_label.setText(f"Estado: Grabando ('{label}')")
         self.status_label.setStyleSheet("color: green;")
+        # Actualizar estado de botones
+        self.btn_start.setEnabled(False)
+        self.btn_stop.setEnabled(True)
 
     def _on_segment_stopped(self):
         self.status_label.setText("Estado: Detenido")
         self.status_label.setStyleSheet("color: black;")
+        # Actualizar estado de botones
+        self.btn_start_segment.setEnabled(True)
+        self.btn_stop_segment.setEnabled(False)
+
+    def _on_recording_started(self):
+        self.btn_start.setEnabled(False)
+        self.btn_stop.setEnabled(True)
+        
+    def _on_recording_stopped(self):
+        self.btn_start.setEnabled(True)
+        self.btn_stop.setEnabled(False)
+
+    # def on_error(self):
+    #     self.btn_start.setEnabled(True)
+    #     self.btn_stop.setEnabled(False)
+    #     self.btn_start_segment.setEnabled(False)
+    #     self.btn_stop_segment.setEnabled(False)

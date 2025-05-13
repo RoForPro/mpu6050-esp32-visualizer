@@ -102,6 +102,9 @@ class CaptureController(QObject):
     """
     # Señal por cada nueva lectura (un dict con keys: timestamp, sensor_id, yaw, pitch, roll)
     data_ready = pyqtSignal(dict)
+    # Señal al iniciar/parar grabación
+    recording_started = pyqtSignal()
+    recording_stopped = pyqtSignal()
     # Señal al iniciar/parar segmento (label o vacía)
     segment_started = pyqtSignal(str)
     segment_stopped = pyqtSignal()
@@ -125,12 +128,14 @@ class CaptureController(QObject):
         """Arranca el hilo que lee continuamente de las IMUs."""
         if self._thread and self._thread.is_alive():
             return
+        self.recording_started.emit()
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._record_loop, daemon=True)
         self._thread.start()
 
     def stop_recording(self):
         """Pide parada al hilo, espera a que termine y cierra sensores y ficheros."""
+        self.recording_stopped.emit()
         self._stop_event.set()
         if self._thread:
             self._thread.join()
