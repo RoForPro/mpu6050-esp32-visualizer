@@ -3,8 +3,12 @@
 Este proyecto está licenciado bajo CC BY-NC-SA 4.0. Más información: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 TODO
+- Incluir en visualización offline:
+  - identificador de imu
+  - filtrado por imu
+  - repeticiones para poder seleccionar
 - conexión wifi
-
+- borrado de .csv
 
 ## Versión 4.0:
 Cambio sustancial. Implementación propia con ayuda de ChatGPT frente a la generación total por parte de la IA de versiones anteriores.
