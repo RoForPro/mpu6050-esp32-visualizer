@@ -47,6 +47,8 @@ class CaptureWidget(QWidget):
         self.btn_start_segment.setEnabled(False)
         self.btn_stop_segment = QPushButton("Detener Repetición")
         self.btn_stop_segment.setEnabled(False)  # Inicialmente deshabilitado
+        self.btn_start_segment.setToolTip("Iniciar Repetición (espacio)")
+        self.btn_stop_segment.setToolTip("Detener Repetición (espacio)")
 
         self.status_label = QLabel("Estado: Detenido")
         self.status_label.setAlignment(Qt.AlignCenter)

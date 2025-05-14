@@ -21,7 +21,7 @@ class LiveWidget(QWidget):
         self.btn_start = QPushButton("Iniciar")
         self.btn_stop = QPushButton("Detener")
         self.btn_start_segment = QPushButton("Iniciar Reconocimiento")
-        self.btn_stop_segment = QPushButton("Detener Repetición")
+        self.btn_stop_segment = QPushButton("Detener Reconocimiento")
         self.status_label = QLabel("Estado: Detenido")
         self.status_label.setAlignment(Qt.AlignCenter)
 
@@ -29,6 +29,9 @@ class LiveWidget(QWidget):
         self.btn_stop.setEnabled(False)
         self.btn_start_segment.setEnabled(False)
         self.btn_stop_segment.setEnabled(False)
+
+        self.btn_start_segment.setToolTip("Iniciar Reconocimiento (espacio)")
+        self.btn_stop_segment.setToolTip("Detener Reconocimiento (espacio)")
 
         # Layout de controles
         ctrl_layout = QHBoxLayout()
