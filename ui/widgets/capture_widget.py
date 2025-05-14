@@ -1,18 +1,20 @@
 # ui/widgets/capture_widget.py
 
 import os
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QWidget, QPushButton, QComboBox, QLabel, QCheckBox,
-    QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy
+    QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QShortcut
 )
-from PyQt5.QtCore import Qt
 
 import config
 from core.acquisition import CaptureController
 from visualization.plot2d import Plot2DWidget
 
 
-# from visualization.heatmap import HeatmapWidget
+# from visualization.heatmap import HeatmapWidget     # cuando tengas listo el heatmap
 # from visualization.renderer3d import Renderer3DWidget
 
 class CaptureWidget(QWidget):
@@ -32,7 +34,7 @@ class CaptureWidget(QWidget):
 
         # — Controles principales—
         # Inicialización de botones con estados iniciales
-        self.record_raw_data = QCheckBox("Registra toda la captura") # Guarda en .csv raw data
+        self.record_raw_data = QCheckBox("Registra toda la captura")  # Guarda en .csv raw data
         self.record_raw_data.setChecked(False)
         self.btn_start = QPushButton("Iniciar Grabación")
         self.btn_stop = QPushButton("Detener Grabación")
@@ -45,6 +47,8 @@ class CaptureWidget(QWidget):
         self.btn_start_segment.setEnabled(False)
         self.btn_stop_segment = QPushButton("Detener Repetición")
         self.btn_stop_segment.setEnabled(False)  # Inicialmente deshabilitado
+        self.btn_start_segment.setToolTip("Iniciar Repetición (espacio)")
+        self.btn_stop_segment.setToolTip("Detener Repetición (espacio)")
 
         self.status_label = QLabel("Estado: Detenido")
         self.status_label.setAlignment(Qt.AlignCenter)
@@ -98,6 +102,18 @@ class CaptureWidget(QWidget):
         self.btn_start_segment.clicked.connect(self._on_start_segment)
         self.btn_stop_segment.clicked.connect(self.ctrl.stop_segment)
 
+        # — Atajos de teclado —
+        # Espacio = Alternar entre Iniciar/Detener repetición
+        self._recording_segment = False  # Variable para controlar el estado
+        sc_toggle = QShortcut(QKeySequence("Space"), self)
+        sc_toggle.activated.connect(self._toggle_segment)
+
+        # # Los otros atajos pueden mantenerse si lo deseas
+        # sc_start = QShortcut(QKeySequence("Ctrl+R"), self)
+        # sc_start.activated.connect(self._on_start_segment)
+        # sc_stop = QShortcut(QKeySequence("Ctrl+T"), self)
+        # sc_stop.activated.connect(self.ctrl.stop_segment)
+
         # Actualiza los estados de los botones cuando cambia el estado
         self.ctrl.data_ready.connect(self._on_data_ready)
         self.ctrl.recording_started.connect(self._on_recording_started)
@@ -106,6 +122,15 @@ class CaptureWidget(QWidget):
         self.ctrl.segment_stopped.connect(self._on_segment_stopped)
         self.record_raw_data.stateChanged.connect(self._on_raw_data_changed)
         self.ctrl.set_record_raw_data(self.record_raw_data.isChecked())
+
+    def _toggle_segment(self):
+        """Alterna entre iniciar y detener la repetición"""
+        if not self._recording_segment and self.btn_start_segment.isEnabled():
+            self._on_start_segment()
+            self._recording_segment = True
+        elif self._recording_segment and self.btn_stop_segment.isEnabled():
+            self.ctrl.stop_segment()
+            self._recording_segment = False
 
     def _on_raw_data_changed(self, state: bool):
         """Maneja el cambio en el checkbox de datos raw"""
@@ -178,7 +203,20 @@ class CaptureWidget(QWidget):
         self.btn_stop_segment.setEnabled(recording_state.get('btn_stop_segment', False))
         self.status_label.setText(f"Estado: {recording_state.get('status_text', 'Detenido')}")
         self.status_label.setStyleSheet(recording_state.get('status_style', "color: black;"))
+
+
 def _on_raw_data_changed(self, state: bool):
     """Maneja el cambio en el checkbox de datos raw"""
     self.record_raw_data = state
     self.ctrl.set_record_raw_data(state)
+
+
+# Añade este nuevo método
+def _toggle_segment(self):
+    """Alterna entre iniciar y detener la repetición"""
+    if not self._recording_segment and self.btn_start_segment.isEnabled():
+        self._on_start_segment()
+        self._recording_segment = True
+    elif self._recording_segment and self.btn_stop_segment.isEnabled():
+        self.ctrl.stop_segment()
+        self._recording_segment = False
