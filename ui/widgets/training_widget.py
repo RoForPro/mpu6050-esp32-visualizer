@@ -346,7 +346,11 @@ class TrainingWidget(QWidget):
         )
         self.ctrl.log.connect(self._append_log)
         self.ctrl.finished.connect(self._on_finished)
-        self.btn_train.clicked.connect(self.ctrl.start_training)
+        self.btn_train.clicked.connect(self._on_btn_train_click)
+
+    def _on_btn_train_click(self):
+        self.log_area.clear()
+        self.ctrl.start_training()
 
     def _append_log(self, text: str):
         self.log_area.append(text)

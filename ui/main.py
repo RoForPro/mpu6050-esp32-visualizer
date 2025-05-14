@@ -10,6 +10,7 @@ import config
 from ui.widgets.capture_widget import CaptureWidget
 from ui.widgets.offline_widget import OfflineWidget
 from ui.widgets.training_widget import TrainingWidget
+from ui.widgets.live_widget import LiveWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -39,12 +40,7 @@ class MainWindow(QMainWindow):
         # — Live (placeholder) —
         self.live_dock = QDockWidget("Predicción en Vivo", self)
         self.live_dock.setAllowedAreas(Qt.AllDockWidgetAreas)
-        ph_live = QWidget()
-        lay_l = QVBoxLayout(ph_live)
-        lbl_l = QLabel("Predicción en Vivo\n(implementación pendiente)")
-        lbl_l.setAlignment(Qt.AlignCenter)
-        lay_l.addWidget(lbl_l)
-        self.live_dock.setWidget(ph_live)
+        self.live_dock.setWidget(LiveWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, self.live_dock)
 
         # 2) Las mantenemos en una lista para iterar fácilmente
